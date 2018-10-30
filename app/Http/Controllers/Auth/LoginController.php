@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Nexmo\Laravel\Facade\Nexmo;
 
 class LoginController extends Controller
 {
@@ -44,6 +45,25 @@ class LoginController extends Controller
     public function authenticated(Request $request, Authenticatable $user){
         Auth::logout();
         $request->session()->put('verify:user:id', $user->id);
+        $request->session()->put('verify:phone_number', $user->phone_number);
+
+        try {
+            $verification = Nexmo::verify()->start([
+                'number' => $user->phone_number,
+                'brand'  => 'Isjeady Sms'
+            ]);
+            $user->request_id = $verification->getRequestId();
+            $user->save();
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors([
+                'code' => $e->getMessage()
+            ]);
+        }
+
+        /*
+        logger("verification");
+        logger($verification);
+        */
         return redirect('verify');
     }
 }

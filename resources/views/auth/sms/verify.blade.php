@@ -8,6 +8,12 @@
                 <div class="panel-heading">Verify</div>
 
                 <div class="panel-body">
+                    @if (session('resend_sms'))
+                        <div class="alert alert-success" role="alert">
+                            {{ session('resend_sms') }}
+                        </div>
+                    @endif
+
                     <form class="form-horizontal" role="form" method="POST" action="{{ route('verify') }}">
                         {{ csrf_field() }}
 
@@ -31,6 +37,10 @@
                                 </button>
                             </div>
                         </div>
+
+                        <a class="btn btn-link" href="{{ route('resend_sms') }}">
+                            Resend Sms
+                        </a>
                     </form>
                 </div>
             </div>

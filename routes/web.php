@@ -20,4 +20,5 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('/verify', 'SmsController@show')->name('verify');
+Route::get('/resend_sms', 'SmsController@resend_sms')->name('resend_sms');
 Route::post('/verify', 'SmsController@verify')->name('verify');

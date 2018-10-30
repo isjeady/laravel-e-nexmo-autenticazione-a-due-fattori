@@ -16,6 +16,7 @@ class AddUsersPhoneNumber extends Migration
         //
         Schema::table('users', function (Blueprint $table) {
             $table->string('phone_number')->after('password');
+            $table->string('request_id')->after('phone_number');
         });
     }
 
@@ -29,6 +30,7 @@ class AddUsersPhoneNumber extends Migration
         //
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('phone_number');
+            $table->dropColumn('request_id');
         });
     }
 }
