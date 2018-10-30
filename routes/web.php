@@ -18,3 +18,6 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('/verify', 'SmsController@show')->name('verify');
+Route::post('/verify', 'SmsController@verify')->name('verify');
