@@ -8,19 +8,44 @@ use Illuminate\Support\Facades\Auth;
 use Nexmo\Client\Exception\Exception;
 use Nexmo\Laravel\Facade\Nexmo;
 
-class SmsController extends Controller{
-
+class SmsController extends Controller
+{
+    //
     public function show(Request $request) {
-        return view('auth.sms.verify');
+        if($request->session()->has('verify:user:id') && !Auth::user()){
+            return view('auth.sms.verify');
+        }else{
+            return  redirect()->route('login');
+        }
     }
 
     public function resend_sms(Request $request) {
-        $phone_number = $request->session()->get('verify:phone_number');
-        return redirect()->back()->with('resend_sms', 'Resend success:' . $phone_number);
+        if($request->session()->has('verify:user:id') && !Auth::user()){
+
+            $user_id = $request->session()->get('verify:user:id');
+            $user = User::where('id',$user_id)->get()->first();
+
+            try {
+                $verification = Nexmo::verify()->start([
+                    'number' =>  $user->phone_number,
+                    'brand'  => 'Isjeady Sms'
+                ]);
+                $user->request_id = $verification->getRequestId();
+                $user->save();
+                return redirect()->back()->with('resend_sms', 'Resend success !!!');
+            } catch (Exception $e) {
+                return redirect()->back()->withErrors([
+                    'code' => $e->getMessage()
+                ]);
+            }
+
+        }else{
+            return  redirect()->route('login');
+        }
     }
 
     public function verify(Request $request) {
-        logger("VERIFY");
+
         $this->validate($request, [
             'code' => 'size:4',
         ]);
@@ -33,14 +58,21 @@ class SmsController extends Controller{
                 $user->request_id,
                 $request->code
             );
-            //logger("response");
-            //logger($response);
+
             Auth::loginUsingId($request->session()->pull('verify:user:id'));
             return redirect('/home');
+
         } catch (Exception $e) {
             return redirect()->back()->withErrors([
                 'code' => $e->getMessage()
             ]);
         }
+
+
+        return view('auth.sms.verify');
+
+
+
+
     }
 }

@@ -44,6 +44,7 @@ class LoginController extends Controller
 
     public function authenticated(Request $request, Authenticatable $user){
         Auth::logout();
+
         $request->session()->put('verify:user:id', $user->id);
         $request->session()->put('verify:phone_number', $user->phone_number);
 
@@ -60,10 +61,8 @@ class LoginController extends Controller
             ]);
         }
 
-        /*
-        logger("verification");
-        logger($verification);
-        */
         return redirect('verify');
     }
+
+
 }
